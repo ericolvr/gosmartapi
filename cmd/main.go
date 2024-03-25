@@ -17,10 +17,13 @@ func main() {
 	}
 
 	userRepo := repository.NewMySQLUserRepository(db)
+	equipmentRepo := repository.NewMySQLEquipmentRepository(db)
 
 	userUsecase := usecase.NewUserUsecase(userRepo)
+	equipmentUsecase := usecase.NewEquipmentUsecase(equipmentRepo)
 
 	http.NewUserHandler(router, userUsecase)
+	http.NewEquipmentHandler(router, equipmentUsecase)
 
 	router.Run(":8080")
 }
