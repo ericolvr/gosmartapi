@@ -10,6 +10,8 @@ import (
 
 type EquipmentUsecase interface {
 	CreateEquipment(equipment *domain.Equipment) error
+	GetEquipments() ([]*domain.Equipment, error)
+	GetEquipmentByID(id int64) (*domain.Equipment, error)
 }
 
 type equipmentUsecase struct {
@@ -47,8 +49,15 @@ func (ue *equipmentUsecase) CreateEquipment(equipment *domain.Equipment) error {
 			Identifier: equipment.Identifier,
 			StatusCode: http.StatusConflict,
 		}
-
 	}
 
 	return ue.equipmentRepo.Create(equipment)
+}
+
+func (ue *equipmentUsecase) GetEquipments() ([]*domain.Equipment, error) {
+	return ue.equipmentRepo.GetEquipments()
+}
+
+func (ue *equipmentUsecase) GetEquipmentByID(id int64) (*domain.Equipment, error) {
+	return ue.equipmentRepo.GetEquipmentByID(id)
 }
