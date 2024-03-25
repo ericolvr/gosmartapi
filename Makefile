@@ -4,4 +4,10 @@ start:
 run:
 	go run cmd/main.go
 
-.PHONY:  start, run 
+build:
+	GOOS=darwin GOARCH=amd64 go build -o build/app ./cmd/main.go
+
+run-builded:
+	./build/app
+
+.PHONY:  start, run, build
