@@ -12,7 +12,7 @@ type UserRepository interface {
 	GetByID(id int64) (*domain.User, error)
 	Update(user *domain.User) error
 	Delete(id int64) error
-	GetByEmail(email string) (*domain.User, error)
+	GetByDocument(document string) (*domain.User, error)
 }
 
 type mysqlUserRepository struct {
@@ -26,8 +26,8 @@ func NewMySQLUserRepository(db *sql.DB) UserRepository {
 }
 
 func (r *mysqlUserRepository) Create(user *domain.User) error {
-	query := "INSERT INTO users (name, email) VALUES (?, ?)"
-	result, err := r.db.Exec(query, user.Name, user.Email)
+	query := "INSERT INTO users (name, document, Role, Password, Photo, Completed) VALUES (?, ?, ?, ?, ?, ?)"
+	result, err := r.db.Exec(query, user.Name, user.Document, user.Role, user.Password, user.Photo, user.Completed)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (r *mysqlUserRepository) GetByID(id int64) (*domain.User, error) {
 	row := r.db.QueryRow(query, id)
 
 	var user domain.User
-	err := row.Scan(&user.ID, &user.Name)
+	err := row.Scan(&user.ID, &user.Name, &user)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil // User not found
@@ -77,9 +77,9 @@ func (r *mysqlUserRepository) Delete(id int64) error {
 	return nil
 }
 
-func (r *mysqlUserRepository) GetByEmail(email string) (*domain.User, error) {
-	query := "SELECT id, name FROM users WHERE email = ?"
-	row := r.db.QueryRow(query, email)
+func (r *mysqlUserRepository) GetByDocument(document string) (*domain.User, error) {
+	query := "SELECT id, name FROM users WHERE document = ?"
+	row := r.db.QueryRow(query, document)
 
 	var user domain.User
 	err := row.Scan(&user.ID, &user.Name)
