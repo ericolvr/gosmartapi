@@ -1,0 +1,27 @@
+version: '3'
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: goapi
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+       - dbdata:/var/lib/mysql
+    networks:
+      - my-network
+
+volumes:
+  dbdata:
+    driver: local
+
+networks:
+  my-network:
+    driver: bridge
+
