@@ -10,6 +10,7 @@ import (
 
 type UserUsecase interface {
 	CreateUser(user *domain.User) error
+	GetUsers() ([]*domain.User, error)
 	GetUserByID(id int64) (*domain.User, error)
 	UpdateUser(user *domain.User) error
 	DeleteUser(id int64) error
@@ -53,6 +54,10 @@ func (uc *userUsecase) CreateUser(user *domain.User) error {
 	}
 
 	return uc.userRepo.Create(user)
+}
+
+func (uc *userUsecase) GetUsers() ([]*domain.User, error) {
+	return uc.userRepo.GetUsers()
 }
 
 func (uc *userUsecase) GetUserByID(id int64) (*domain.User, error) {
