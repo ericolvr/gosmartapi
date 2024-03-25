@@ -7,9 +7,10 @@ type Equipment struct {
 	Code        string `json:"code"`
 	UsedCode    bool   `json:"used_code"`
 	Environment string `json:"environment"`
-	System      string `json:"system"`
+	SystemName  string `json:"system_name"`
 	Schedule    string `json:"schedule"`
-	Users       []User `json:"users"`
-	Completed   bool   `json:"completed"`
-	CreatedAt   string `json:"created_at"`
+	// Users       []User `json:"users"`
+	Users     string `json:"user"`
+	Completed bool   `json:"completed"`
+	CreatedAt string `json:"created_at"`
 }
