@@ -19,6 +19,7 @@ func NewUserHandler(router *gin.Engine, userUsecase usecase.UserUsecase) {
 	}
 
 	router.POST("/users", handler.createUser)
+	router.GET("/users", handler.getUsers)
 	router.GET("/users/:id", handler.getUser)
 	router.PUT("/users/:id", handler.updateUser)
 	router.DELETE("/users/:id", handler.deleteUser)
@@ -37,6 +38,16 @@ func (h *userHandler) createUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, user)
+}
+
+func (h *userHandler) getUsers(c *gin.Context) {
+	users, err := h.userUsecase.GetUsers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, users)
 }
 
 func (h *userHandler) getUser(c *gin.Context) {
