@@ -9,6 +9,7 @@ import (
 
 type UserRepository interface {
 	Create(user *domain.User) error
+	GetUsers() ([]*domain.User, error)
 	GetByID(id int64) (*domain.User, error)
 	Update(user *domain.User) error
 	Delete(id int64) error
@@ -41,15 +42,36 @@ func (r *mysqlUserRepository) Create(user *domain.User) error {
 	return nil
 }
 
+func (r *mysqlUserRepository) GetUsers() ([]*domain.User, error) {
+	query := "SELECT id, name, document, role, password, photo, completed FROM users"
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*domain.User
+	for rows.Next() {
+		var user domain.User
+		err := rows.Scan(&user.ID, &user.Name, &user.Document, &user.Role, &user.Password, &user.Photo, &user.Completed)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+
+	return users, nil
+}
+
 func (r *mysqlUserRepository) GetByID(id int64) (*domain.User, error) {
-	query := "SELECT id, name FROM users WHERE id = ?"
+	query := "SELECT id, name, document, role, password, photo, completed FROM users WHERE id = ?"
 	row := r.db.QueryRow(query, id)
 
 	var user domain.User
-	err := row.Scan(&user.ID, &user.Name, &user)
+	err := row.Scan(&user.ID, &user.Name, &user.Document, &user.Role, &user.Password, &user.Photo, &user.Completed)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil // User not found
+			return nil, nil
 		}
 		return nil, err
 	}
