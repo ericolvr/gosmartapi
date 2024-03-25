@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/ericolvr/goapi/internal/domain"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserRepository interface {
@@ -26,9 +27,24 @@ func NewMySQLUserRepository(db *sql.DB) UserRepository {
 	}
 }
 
+func EncryptPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
+}
+
 func (r *mysqlUserRepository) Create(user *domain.User) error {
+
+	hashedPwd, err := EncryptPassword(user.Password)
+	if err != nil {
+		return err
+
+	}
+
 	query := "INSERT INTO users (name, document, Role, Password, Photo, Completed) VALUES (?, ?, ?, ?, ?, ?)"
-	result, err := r.db.Exec(query, user.Name, user.Document, user.Role, user.Password, user.Photo, user.Completed)
+	result, err := r.db.Exec(query, user.Name, user.Document, user.Role, hashedPwd, user.Photo, user.Completed)
 	if err != nil {
 		return err
 	}
