@@ -19,16 +19,16 @@ type userUsecase struct {
 	userRepo repository.UserRepository
 }
 
-type DuplicateEmailError struct {
-	Email      string
+type DuplicateDocumentError struct {
+	Document   string
 	StatusCode int
 }
 
-func (e *DuplicateEmailError) Error() string {
-	return fmt.Sprintf("user with email %s already exists", e.Email)
+func (e *DuplicateDocumentError) Error() string {
+	return fmt.Sprintf("user with document %s already exists", e.Document)
 }
 
-func (e *DuplicateEmailError) Status() int {
+func (e *DuplicateDocumentError) Status() int {
 	return e.StatusCode
 }
 
@@ -39,15 +39,15 @@ func NewUserUsecase(userRepo repository.UserRepository) UserUsecase {
 }
 
 func (uc *userUsecase) CreateUser(user *domain.User) error {
-	existingUser, err := uc.userRepo.GetByEmail(user.Email)
+	existingUser, err := uc.userRepo.GetByDocument(user.Document)
 
 	if err != nil {
 		return err
 	}
 
 	if existingUser != nil {
-		return &DuplicateEmailError{
-			Email:      user.Email,
+		return &DuplicateDocumentError{
+			Document:   user.Document,
 			StatusCode: http.StatusConflict,
 		}
 	}
