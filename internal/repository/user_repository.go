@@ -40,11 +40,21 @@ func (r *mysqlUserRepository) Create(user *domain.User) error {
 	hashedPwd, err := EncryptPassword(user.Password)
 	if err != nil {
 		return err
-
 	}
 
-	query := "INSERT INTO users (name, document, Role, Password, Photo, Completed) VALUES (?, ?, ?, ?, ?, ?)"
-	result, err := r.db.Exec(query, user.Name, user.Document, user.Role, hashedPwd, user.Photo, user.Completed)
+	query := "INSERT INTO users (name, document, " +
+		"Role, Password, Photo, Completed) VALUES (?, ?, ?, ?, ?, ?)"
+
+	result, err := r.db.Exec(
+		query,
+		user.Name,
+		user.Document,
+		user.Role,
+		hashedPwd,
+		user.Photo,
+		user.Completed,
+	)
+
 	if err != nil {
 		return err
 	}
@@ -61,15 +71,25 @@ func (r *mysqlUserRepository) Create(user *domain.User) error {
 func (r *mysqlUserRepository) GetUsers() ([]*domain.User, error) {
 	query := "SELECT id, name, document, role, password, photo, completed FROM users"
 	rows, err := r.db.Query(query)
+
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	var users []*domain.User
+
 	for rows.Next() {
 		var user domain.User
-		err := rows.Scan(&user.ID, &user.Name, &user.Document, &user.Role, &user.Password, &user.Photo, &user.Completed)
+		err := rows.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Document,
+			&user.Role,
+			&user.Password,
+			&user.Photo,
+			&user.Completed,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -84,20 +104,42 @@ func (r *mysqlUserRepository) GetByID(id int64) (*domain.User, error) {
 	row := r.db.QueryRow(query, id)
 
 	var user domain.User
-	err := row.Scan(&user.ID, &user.Name, &user.Document, &user.Role, &user.Password, &user.Photo, &user.Completed)
+	err := row.Scan(
+		&user.ID,
+		&user.Name,
+		&user.Document,
+		&user.Role,
+		&user.Password,
+		&user.Photo,
+		&user.Completed,
+	)
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
 	}
-
 	return &user, nil
 }
 
 func (r *mysqlUserRepository) Update(user *domain.User) error {
-	query := "UPDATE users SET name = ? WHERE id = ?"
-	_, err := r.db.Exec(query, user.Name, user.ID)
+	query := "UPDATE users SET name = ?, " +
+		"document = ?, role = ?, " +
+		"password = ?, photo = ?, " +
+		"completed = ? WHERE id = ?"
+
+	_, err := r.db.Exec(
+		query,
+		user.Name,
+		user.Document,
+		user.Role,
+		user.Password,
+		user.Photo,
+		user.Completed,
+		user.ID,
+	)
+
 	if err != nil {
 		return err
 	}
@@ -111,7 +153,6 @@ func (r *mysqlUserRepository) Delete(id int64) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -127,6 +168,5 @@ func (r *mysqlUserRepository) GetByDocument(document string) (*domain.User, erro
 		}
 		return nil, err
 	}
-
 	return &user, nil
 }
