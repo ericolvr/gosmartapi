@@ -12,6 +12,8 @@ type EquipmentRepository interface {
 	GetEquipments() ([]*domain.Equipment, error)
 	GetEquipmentByID(id int64) (*domain.Equipment, error)
 	GetByIdentifier(identifier string) (*domain.Equipment, error)
+	UpdateEquipment(equipment *domain.Equipment) error
+	DeleteEquipment(id int64) error
 }
 
 type mysqlEquipmentRepository struct {
@@ -25,8 +27,10 @@ func NewMySQLEquipmentRepository(db *sql.DB) EquipmentRepository {
 }
 
 func (r *mysqlEquipmentRepository) Create(equipment *domain.Equipment) error {
-	query := "INSERT INTO equipments (identifier, uniorg, code, used_code, " +
-		"environment, system_name, schedule, users, completed) " +
+	query := "INSERT INTO equipments (identifier, " +
+		"uniorg, code, used_code, " +
+		"environment, system_name, " +
+		"schedule, users, completed) " +
 		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
 	result, err := r.db.Exec(query,
@@ -71,7 +75,10 @@ func (r *mysqlEquipmentRepository) GetByIdentifier(identifier string) (*domain.E
 }
 
 func (r *mysqlEquipmentRepository) GetEquipments() ([]*domain.Equipment, error) {
-	query := "SELECT id, identifier, uniorg, code, used_code, environment, system_name, schedule, users, completed, created_at FROM equipments"
+	query := "SELECT id, identifier, uniorg, " +
+		"code, used_code, environment, " +
+		"system_name, schedule, users, " +
+		"completed, created_at FROM equipments"
 	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -81,7 +88,19 @@ func (r *mysqlEquipmentRepository) GetEquipments() ([]*domain.Equipment, error) 
 	var equipments []*domain.Equipment
 	for rows.Next() {
 		var equipment domain.Equipment
-		err := rows.Scan(&equipment.ID, &equipment.Identifier, &equipment.Uniorg, &equipment.Code, &equipment.UsedCode, &equipment.Environment, &equipment.SystemName, &equipment.Schedule, &equipment.Users, &equipment.Completed, &equipment.CreatedAt)
+		err := rows.Scan(
+			&equipment.ID,
+			&equipment.Identifier,
+			&equipment.Uniorg,
+			&equipment.Code,
+			&equipment.UsedCode,
+			&equipment.Environment,
+			&equipment.SystemName,
+			&equipment.Schedule,
+			&equipment.Users,
+			&equipment.Completed,
+			&equipment.CreatedAt,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -120,4 +139,42 @@ func (r *mysqlEquipmentRepository) GetEquipmentByID(id int64) (*domain.Equipment
 	}
 
 	return &equipment, nil
+}
+
+func (r *mysqlEquipmentRepository) UpdateEquipment(equipment *domain.Equipment) error {
+	query := "UPDATE equipments SET identifier = ?, " +
+		"uniorg = ?, code = ?, used_code = ?, " +
+		"environment = ?, system_name = ?, " +
+		"schedule = ?, users = ?, completed = ?, " +
+		"created_at = ? WHERE id = ?"
+
+	_, err := r.db.Exec(
+		query,
+		equipment.Identifier,
+		equipment.Uniorg,
+		equipment.Code,
+		equipment.UsedCode,
+		equipment.Environment,
+		equipment.SystemName,
+		equipment.Schedule,
+		equipment.Users,
+		equipment.Completed,
+		equipment.CreatedAt,
+		equipment.ID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *mysqlEquipmentRepository) DeleteEquipment(id int64) error {
+	query := "DELETE FROM equipments WHERE id = ?"
+	_, err := r.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
