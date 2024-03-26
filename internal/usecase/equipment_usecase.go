@@ -12,6 +12,8 @@ type EquipmentUsecase interface {
 	CreateEquipment(equipment *domain.Equipment) error
 	GetEquipments() ([]*domain.Equipment, error)
 	GetEquipmentByID(id int64) (*domain.Equipment, error)
+	UpdateEquipment(equipment *domain.Equipment) error
+	DeleteEquipment(id int64) error
 }
 
 type equipmentUsecase struct {
@@ -50,7 +52,6 @@ func (ue *equipmentUsecase) CreateEquipment(equipment *domain.Equipment) error {
 			StatusCode: http.StatusConflict,
 		}
 	}
-
 	return ue.equipmentRepo.Create(equipment)
 }
 
@@ -60,4 +61,12 @@ func (ue *equipmentUsecase) GetEquipments() ([]*domain.Equipment, error) {
 
 func (ue *equipmentUsecase) GetEquipmentByID(id int64) (*domain.Equipment, error) {
 	return ue.equipmentRepo.GetEquipmentByID(id)
+}
+
+func (ue *equipmentUsecase) UpdateEquipment(equipment *domain.Equipment) error {
+	return ue.equipmentRepo.UpdateEquipment(equipment)
+}
+
+func (ue *equipmentUsecase) DeleteEquipment(id int64) error {
+	return ue.equipmentRepo.DeleteEquipment(id)
 }
