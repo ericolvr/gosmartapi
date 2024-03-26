@@ -124,8 +124,22 @@ func (r *mysqlUserRepository) GetByID(id int64) (*domain.User, error) {
 }
 
 func (r *mysqlUserRepository) Update(user *domain.User) error {
-	query := "UPDATE users SET name = ? WHERE id = ?"
-	_, err := r.db.Exec(query, user.Name, user.ID)
+	query := "UPDATE users SET name = ?, " +
+		"document = ?, role = ?, " +
+		"password = ?, photo = ?, " +
+		"completed = ? WHERE id = ?"
+
+	_, err := r.db.Exec(
+		query,
+		user.Name,
+		user.Document,
+		user.Role,
+		user.Password,
+		user.Photo,
+		user.Completed,
+		user.ID,
+	)
+
 	if err != nil {
 		return err
 	}
@@ -139,7 +153,6 @@ func (r *mysqlUserRepository) Delete(id int64) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -155,6 +168,5 @@ func (r *mysqlUserRepository) GetByDocument(document string) (*domain.User, erro
 		}
 		return nil, err
 	}
-
 	return &user, nil
 }
