@@ -22,7 +22,7 @@ func NewEquipmentHandler(router *gin.Engine, equipmentUsecase usecase.EquipmentU
 	router.GET("/equipments", handler.getEquipments)
 	router.GET("/equipments/:id", handler.getEquipment)
 	router.PUT("/equipments/:id", handler.updateEquipment)
-	router.DELETE("/users/:id", handler.deleteEquipment)
+	router.DELETE("/equipments/:id", handler.deleteEquipment)
 }
 
 func (h *equipmentHandler) createEquipment(c *gin.Context) {
